@@ -6,7 +6,9 @@ WORKDIR /devops
 COPY go.mod go.mod
 COPY cmd/ cmd/
 
-RUN go mod download
+RUN go env -w GO111MODULE=on \
+  && go env -w GOPROXY=https://goproxy.cn,direct \
+  && go mod download
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build -a -o devops-go-sample cmd/main.go
