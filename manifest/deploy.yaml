@@ -18,3 +18,21 @@ spec:
       containers:
       - name: go
         image: $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: devops-go-sample-service-svc
+  name: devops-go-sample-service-svc
+  namespace: demo-project
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 31702
+  selector:
+    app: devops-go-sample
