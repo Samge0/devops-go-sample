@@ -27,7 +27,7 @@ metadata:
   labels:
     app: devops-go-sample-service-svc
   name: devops-go-sample-service-svc
-  namespace: demo-project
+  namespace: $PROJECT_NAME
 spec:
   type: NodePort
   ports:
