@@ -1,3 +1,9 @@
+// 设置docker的镜像版本后面增加时间信息，保证k8s的pod正常升级替换，否则，同版本的docker镜像版本需要手动删除pod节点才能正常更新
+import java.text.SimpleDateFormat
+def dateFormat = new SimpleDateFormat("yyyyMMddHHmmss")
+def date = new Date()
+dayTime=dateFormat.format(date)
+
 pipeline {
     agent {
         label 'go'
@@ -9,21 +15,13 @@ pipeline {
         // 您的 Docker Hub 用户名
         DOCKERHUB_USERNAME = 'samge'
         // Docker 镜像名称
-        APP_NAME = 'devops-go-sample:v1'
+        APP_NAME = 'devops-go-sample:v1-' + dayTime
         // 'dockerhubid' 是您在 KubeSphere 用 Docker Hub 访问令牌创建的凭证 ID
         DOCKERHUB_CREDENTIAL = credentials('docker-hub')
         // 您在 KubeSphere 创建的 kubeconfig 凭证 ID
         KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-info'
         // 您在 KubeSphere 创建的项目名称，不是 DevOps 项目名称
         PROJECT_NAME = 'test'
-
-        // 设置docker的镜像版本后面增加时间信息，保证k8s的pod正常升级替换，否则，同版本的docker镜像版本需要手动删除pod节点才能正常更新
-        import java.text.SimpleDateFormat
-        def dateFormat = new SimpleDateFormat("yyyyMMddHHmmss")
-        def date = new Date()
-        dayTime=dateFormat.format(date)
-        APP_NAME=$APP_NAME+'-'+dayTime
-        echo "在 environment 阶段中，APP_NAME = ${APP_NAME}"
     }
 
     stages {
