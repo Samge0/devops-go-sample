@@ -2,7 +2,7 @@
 import java.text.SimpleDateFormat
 def dateFormat = new SimpleDateFormat("yyyyMMddHHmmss")
 def date = new Date()
-dayTime=dateFormat.format(date)
+def dayTime = dateFormat.format(date)
 
 pipeline {
     agent {
