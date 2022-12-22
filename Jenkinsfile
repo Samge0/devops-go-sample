@@ -16,6 +16,14 @@ pipeline {
         KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-info'
         // 您在 KubeSphere 创建的项目名称，不是 DevOps 项目名称
         PROJECT_NAME = 'test'
+
+        // 设置docker的镜像版本后面增加时间信息，保证k8s的pod正常升级替换，否则，同版本的docker镜像版本需要手动删除pod节点才能正常更新
+        import java.text.SimpleDateFormat
+        def dateFormat = new SimpleDateFormat("yyyyMMddHHmmss")
+        def date = new Date()
+        dayTime=dateFormat.format(date)
+        APP_NAME=$APP_NAME+'-'+dayTime
+        echo "在 environment 阶段中，APP_NAME = ${APP_NAME}"
     }
 
     stages {
@@ -30,15 +38,15 @@ pipeline {
     stage('build & push') {
         steps {
             container ('go') {
+                sh 'echo "在 build & push 阶段中，APP_NAME = ${APP_NAME}"'
+
                 sh 'git config --global http.proxy "http://192.168.3.169:7890" && git config --global https.proxy "https://192.168.3.169:7890"'
                 sh 'git clone https://gps.qianzhan.com/shaochengbao/devops-go-sample.git'
                 sh 'cd devops-go-sample && docker build -t $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME .'
                 sh 'docker push $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME'
                 
                 // 执行 docker logout命令清除缓存的docker登录信息：https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-                sh 'echo "执行 docker logout 命令前，docker配置信息为：" & cat /root/.docker/config.json'
                 sh 'docker logout'
-                sh 'echo "执行 docker logout 命令后，docker配置信息为：" & cat /root/.docker/config.json'
             }
         }
     }
@@ -51,6 +59,7 @@ pipeline {
                       credentialsId: env.KUBECONFIG_CREDENTIAL_ID,
                       variable: 'KUBECONFIG')
                       ]) {
+                        sh 'echo "在 deploy app 阶段中，APP_NAME = ${APP_NAME}"'
                         sh 'envsubst < devops-go-sample/manifest/deploy.yaml | kubectl apply -f -'
                       }
                   }
