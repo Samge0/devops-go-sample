@@ -31,7 +31,7 @@ pipeline {
         steps {
             container ('go') {
                 sh 'git config --global http.proxy "http://192.168.3.169:7890" && git config --global https.proxy "https://192.168.3.169:7890"'
-                sh 'git clone https://github.com/Samge0/devops-go-sample.git'
+                sh 'git clone https://gps.qianzhan.com/shaochengbao/devops-go-sample.git'
                 sh 'cd devops-go-sample && docker build -t $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME .'
                 sh 'docker push $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME'
             }
