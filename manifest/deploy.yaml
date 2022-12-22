@@ -18,6 +18,7 @@ spec:
       containers:
       - name: go
         image: $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME
+        imagePullPolicy: Always
 
 ---
 

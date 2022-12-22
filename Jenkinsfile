@@ -34,6 +34,11 @@ pipeline {
                 sh 'git clone https://gps.qianzhan.com/shaochengbao/devops-go-sample.git'
                 sh 'cd devops-go-sample && docker build -t $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME .'
                 sh 'docker push $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME'
+                
+                // 执行 docker logout命令清除缓存的docker登录信息：https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+                sh 'echo "执行 docker logout 命令前，docker配置信息为：" & cat /root/.docker/config.json'
+                sh 'docker logout'
+                sh 'echo "执行 docker logout 命令后，docker配置信息为：" & cat /root/.docker/config.json'
             }
         }
     }
