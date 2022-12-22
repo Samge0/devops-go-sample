@@ -4,7 +4,6 @@ def dateFormat = new SimpleDateFormat("yyyyMMddHHmmss")
 def date = new Date()
 // groovy中，局部变量前面加def，全局变量前面不需要加声明
 dayTime = dateFormat.format(date)
-echo "初始化 阶段中，dayTime = ${dayTime}"
 
 pipeline {
 
@@ -18,7 +17,11 @@ pipeline {
         // 您的 Docker Hub 用户名
         DOCKERHUB_USERNAME = 'samge'
         // Docker 镜像名称
-        APP_NAME = "devops-go-sample:v1-${dayTime}"
+        APP_NAME = "devops-go-sample"
+        // Docker 镜像版本
+        APP_VERSION = "v1-${dayTime}"
+        // Docker 镜像名称:版本
+        APP_NAME_FULL = "${APP_NAME}${APP_VERSION}"
         // 'dockerhubid' 是您在 KubeSphere 用 Docker Hub 访问令牌创建的凭证 ID
         DOCKERHUB_CREDENTIAL = credentials('docker-hub')
         // 您在 KubeSphere 创建的 kubeconfig 凭证 ID
@@ -42,12 +45,10 @@ pipeline {
         stage ('build & push') {
             steps {
                 container ('go') {
-                    sh 'echo "在 build & push 阶段中，APP_NAME = ${APP_NAME}"'
-
                     sh 'git config --global http.proxy "http://192.168.3.169:7890" && git config --global https.proxy "https://192.168.3.169:7890"'
                     sh 'git clone https://gps.qianzhan.com/shaochengbao/devops-go-sample.git'
-                    sh 'cd devops-go-sample && docker build -t $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME .'
-                    sh 'docker push $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME'
+                    sh 'cd devops-go-sample && docker build -t $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME_FULL .'
+                    sh 'docker push $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME_FULL'
                 }
             }
         }
@@ -62,7 +63,6 @@ pipeline {
                             variable: 'KUBECONFIG'
                         )
                     ]) {
-                        sh 'echo "在 deploy app 阶段中，APP_NAME = ${APP_NAME}"'
                         sh 'envsubst < devops-go-sample/manifest/deploy.yaml | kubectl apply -f -'
                     }
                 }
@@ -74,10 +74,10 @@ pipeline {
             steps {
                 container ('go') {
                     // 清理本地docker镜像
-                    sh 'docker rmi $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME'
+                    sh 'docker rmi $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME_FULL'
 
                     sh 'echo "部署完毕后，在debug模式下删除远程的docker镜像，避免镜像杂乱（正常应该在内网搭建docker环境进行开发测试）"'
-                    sh 'curl -X DELETE http://$REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME'
+                    sh 'curl -X DELETE https://hub.docker.com/v2/repositories/$DOCKERHUB_USERNAME/$APP_NAME/tags/$APP_VERSION/'
 
                     // 执行 docker logout命令清除缓存的docker登录信息：https://docs.docker.com/engine/reference/commandline/login/#credentials-store
                     sh 'docker logout'
