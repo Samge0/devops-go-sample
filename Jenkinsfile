@@ -22,8 +22,10 @@ pipeline {
         APP_VERSION = "v1-${dayTime}"
         // Docker 镜像名称:版本
         APP_NAME_FULL = "${APP_NAME}${APP_VERSION}"
-        // 'dockerhubid' 是您在 KubeSphere 用 Docker Hub 访问令牌创建的凭证 ID
+        // 'docker-hub' 是您在 KubeSphere 用 Docker Hub 访问令牌创建的凭证 ID
         DOCKERHUB_CREDENTIAL = credentials('docker-hub')
+        // git仓库登录的凭证
+        GIT_CREDENTIAL = credentials('gitlab-qz')
         // 您在 KubeSphere 创建的 kubeconfig 凭证 ID
         KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-info'
         // 您在 KubeSphere 创建的项目名称，不是 DevOps 项目名称
@@ -46,7 +48,7 @@ pipeline {
             steps {
                 container ('go') {
                     sh 'git config --global http.proxy "http://192.168.3.169:7890" && git config --global https.proxy "https://192.168.3.169:7890"'
-                    sh 'git clone https://gps.qianzhan.com/shaochengbao/devops-go-sample.git'
+                    sh 'git clone https://$GIT_CREDENTIAL_USR:$GIT_CREDENTIAL_PSW@gps.qianzhan.com/shaochengbao/devops-go-sample.git'
                     sh 'cd devops-go-sample && docker build -t $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME_FULL .'
                     sh 'docker push $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME_FULL'
                 }
