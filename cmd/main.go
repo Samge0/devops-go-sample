@@ -9,7 +9,7 @@ func index(c *gin.Context) {
         "date": "2022-11-25 18:53:25",
         "name": "samge",
         "msg": "Hi guys, this is a devops jenkins test of kebesphere",
-        "version": "v2.2",
+        "version": "v2.3",
         })
 }
 
