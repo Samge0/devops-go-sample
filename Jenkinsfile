@@ -71,7 +71,7 @@ pipeline {
 
         // 清理阶段，这个阶段不管前面步骤成功还是失败都需要执行清理
         stage ('clean') {
-            stages {
+            steps {
                 container ('go') {
                     // 清理本地docker镜像
                     sh 'docker rmi $REGISTRY/$DOCKERHUB_USERNAME/$APP_NAME'
